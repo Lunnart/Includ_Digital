@@ -28,3 +28,8 @@ use the editor.
   own key and store it in Secrets.
 - **Secrets.** Lovable manages them. Do not put secret values in the repo.
 <!-- LOVABLE:END -->
+
+## Project rules
+- The site shell (skip link, header, single `<main>`, footer) lives in `src/routes/__root.tsx` via `src/components/site-shell.tsx`; pages render only their own content. Why: one consistent, accessible layout and exactly one `<main>` per page.
+- Text size is scaled by changing the root `html` font-size from `src/lib/text-size.ts`, so all sizing must use rem-based Tailwind classes, never px. Why: the A+/A− control must enlarge every element.
+- Large tap targets use the `xl` and `touch` Button sizes instead of ad-hoc sizing. Why: consistent minimum touch areas for older users.
