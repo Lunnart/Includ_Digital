@@ -1,6 +1,6 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { Link, createFileRoute } from "@tanstack/react-router";
 import {
-  ArrowDown,
+  ChevronRight,
   Globe,
   Keyboard,
   LayoutGrid,
@@ -40,17 +40,21 @@ export const Route = createFileRoute("/")({
 });
 
 type Topic = { icon: LucideIcon; title: string; text: string };
+type TopicLink = { to: "/duvidas"; hash: string } | { to: "/golpes" };
+type HomeTopic = Topic & { link?: TopicLink };
 
-const TOPICS: Topic[] = [
+const TOPICS: HomeTopic[] = [
   {
     icon: Smartphone,
     title: "Celular",
-    text: "Ligar para alguém, mandar fotos, aumentar o volume e outras tarefas do dia a dia.",
+    text: "Fazer e atender ligações, salvar contatos, aumentar as letras, tirar fotos e mais.",
+    link: { to: "/duvidas", hash: "celular" },
   },
   {
     icon: Globe,
     title: "Internet",
     text: "Conectar no Wi-Fi (a internet sem fio de casa) e fazer pesquisas.",
+    link: { to: "/duvidas", hash: "internet" },
   },
   {
     icon: LayoutGrid,
@@ -61,6 +65,7 @@ const TOPICS: Topic[] = [
     icon: ShieldAlert,
     title: "Segurança e golpes",
     text: "Reconhecer mensagens falsas e saber o que fazer quando algo parece estranho.",
+    link: { to: "/golpes" },
   },
   {
     icon: MessageCircleQuestion,
@@ -99,12 +104,18 @@ function Index() {
           Este é um lugar tranquilo para tirar dúvidas sobre celular, internet e aplicativos. As
           explicações são simples, em passos curtos, e você vai no seu tempo.
         </p>
-        <div className="mt-8">
+        <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:flex-wrap">
           <Button asChild size="xl">
-            <a href="#o-que-tem-aqui">
-              Ver o que você vai encontrar
-              <ArrowDown aria-hidden="true" />
-            </a>
+            <Link to="/duvidas" hash="celular">
+              <Smartphone aria-hidden="true" />
+              Dúvidas sobre o celular
+            </Link>
+          </Button>
+          <Button asChild size="xl" variant="outline">
+            <Link to="/golpes">
+              <ShieldAlert aria-hidden="true" />
+              Proteger-se de golpes
+            </Link>
           </Button>
         </div>
       </section>
@@ -132,26 +143,46 @@ function Index() {
           O que você vai encontrar aqui
         </h2>
         <p className="mt-3 text-xl text-muted-foreground">
-          Estes assuntos estão sendo preparados e chegam em breve.
+          Toque em um assunto para ver as explicações passo a passo.
         </p>
         <ul className="mt-8 grid gap-5 sm:grid-cols-2">
-          {TOPICS.map(({ icon: Icon, title, text }) => (
-            <li key={title} className="flex gap-4 rounded-2xl border-2 border-border bg-card p-6">
-              <span
-                aria-hidden="true"
-                className="flex size-14 shrink-0 items-center justify-center rounded-xl bg-accent text-accent-foreground"
-              >
-                <Icon className="size-8" />
-              </span>
-              <div>
-                <h3 className="text-2xl font-bold">{title}</h3>
-                <p className="mt-2 text-lg">{text}</p>
-                <p className="mt-3 inline-block rounded-lg bg-muted px-3 py-1 text-base font-bold text-muted-foreground">
-                  Em breve
-                </p>
-              </div>
-            </li>
-          ))}
+          {TOPICS.map(({ icon: Icon, title, text, link }) => {
+            const content = (
+              <>
+                <span
+                  aria-hidden="true"
+                  className="flex size-14 shrink-0 items-center justify-center rounded-xl bg-accent text-accent-foreground"
+                >
+                  <Icon className="size-8" />
+                </span>
+                <span className="flex-1">
+                  <span className="block font-display text-2xl font-bold">{title}</span>
+                  <span className="mt-2 block text-lg">{text}</span>
+                  {!link && (
+                    <span className="mt-3 inline-block rounded-lg bg-muted px-3 py-1 text-base font-bold text-muted-foreground">
+                      Em breve
+                    </span>
+                  )}
+                </span>
+                {link && <ChevronRight aria-hidden="true" className="size-8 shrink-0 self-center text-primary" />}
+              </>
+            );
+            const base = "flex h-full gap-4 rounded-2xl border-2 bg-card p-6 text-foreground";
+            return (
+              <li key={title}>
+                {link ? (
+                  <Link
+                    {...link}
+                    className={`${base} border-primary no-underline transition-colors hover:bg-accent`}
+                  >
+                    {content}
+                  </Link>
+                ) : (
+                  <div className={`${base} border-border`}>{content}</div>
+                )}
+              </li>
+            );
+          })}
         </ul>
       </section>
 

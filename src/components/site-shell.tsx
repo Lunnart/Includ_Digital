@@ -3,6 +3,12 @@ import { HeartHandshake } from "lucide-react";
 
 import { TextSizeControl } from "@/components/text-size-control";
 
+const NAV_ITEMS = [
+  { to: "/", label: "Início" },
+  { to: "/duvidas", label: "Dúvidas" },
+  { to: "/golpes", label: "Golpes" },
+] as const;
+
 export function SiteHeader() {
   return (
     <header className="border-b-2 border-border bg-card">
@@ -23,6 +29,21 @@ export function SiteHeader() {
         </Link>
         <TextSizeControl />
       </div>
+      <nav aria-label="Menu principal" className="border-t-2 border-border">
+        <ul className="mx-auto flex max-w-5xl flex-wrap gap-1 px-3 py-3 sm:gap-2 sm:px-5">
+          {NAV_ITEMS.map((item) => (
+            <li key={item.to}>
+              <Link
+                to={item.to}
+                activeOptions={{ exact: item.to === "/" }}
+                className="inline-flex min-h-12 items-center rounded-xl px-3 text-lg sm:px-4 font-bold text-foreground no-underline hover:bg-accent aria-[current=page]:bg-primary aria-[current=page]:text-primary-foreground"
+              >
+                {item.label}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </nav>
     </header>
   );
 }
