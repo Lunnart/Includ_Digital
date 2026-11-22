@@ -37,7 +37,10 @@ function GolpesPage() {
         proteção.
       </p>
 
-      <nav aria-labelledby="nesta-pagina" className="mt-8 rounded-2xl border-2 border-border bg-card p-6">
+      <nav
+        aria-labelledby="nesta-pagina"
+        className="mt-8 rounded-2xl border-2 border-border bg-card p-6"
+      >
         <h2 id="nesta-pagina" className="text-2xl font-bold">
           Nesta página
         </h2>
@@ -117,7 +120,10 @@ function GolpesPage() {
         <p className="mt-3 text-xl">Se aparecer um destes sinais, pare e desconfie:</p>
         <ul className="mt-5 grid gap-4 sm:grid-cols-2">
           {WARNING_SIGNS.map((sign) => (
-            <li key={sign} className="flex gap-3 rounded-2xl border-2 border-border bg-card p-5 text-xl">
+            <li
+              key={sign}
+              className="flex gap-3 rounded-2xl border-2 border-border bg-card p-5 text-xl"
+            >
               <XCircle aria-hidden="true" className="mt-1 size-7 shrink-0 text-destructive" />
               <span>{sign}</span>
             </li>
@@ -137,7 +143,10 @@ function GolpesPage() {
         </p>
         <ol className="mt-6 space-y-5">
           {IF_SCAMMED.map((item, index) => (
-            <li key={item.title} className="flex gap-5 rounded-2xl border-2 border-border bg-card p-5 sm:p-6">
+            <li
+              key={item.title}
+              className="flex gap-5 rounded-2xl border-2 border-border bg-card p-5 sm:p-6"
+            >
               <span
                 aria-hidden="true"
                 className="flex size-12 shrink-0 items-center justify-center rounded-full bg-primary font-display text-2xl font-bold text-primary-foreground"

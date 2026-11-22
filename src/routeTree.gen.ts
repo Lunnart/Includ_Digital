@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AssistenteRouteImport } from './routes/assistente'
 import { Route as GolpesRouteImport } from './routes/golpes'
 import { Route as DuvidasIndexRouteImport } from './routes/duvidas/index'
 import { Route as DuvidasSlugRouteImport } from './routes/duvidas/$slug'
@@ -17,6 +18,11 @@ import { Route as DuvidasSlugRouteImport } from './routes/duvidas/$slug'
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AssistenteRoute = AssistenteRouteImport.update({
+  id: '/assistente',
+  path: '/assistente',
   getParentRoute: () => rootRouteImport,
 } as any)
 const GolpesRoute = GolpesRouteImport.update({
@@ -37,12 +43,14 @@ const DuvidasSlugRoute = DuvidasSlugRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/assistente': typeof AssistenteRoute
   '/golpes': typeof GolpesRoute
   '/duvidas/$slug': typeof DuvidasSlugRoute
   '/duvidas/': typeof DuvidasIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/assistente': typeof AssistenteRoute
   '/golpes': typeof GolpesRoute
   '/duvidas/$slug': typeof DuvidasSlugRoute
   '/duvidas': typeof DuvidasIndexRoute
@@ -50,20 +58,28 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/assistente': typeof AssistenteRoute
   '/golpes': typeof GolpesRoute
   '/duvidas/$slug': typeof DuvidasSlugRoute
   '/duvidas/': typeof DuvidasIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/golpes' | '/duvidas/$slug' | '/duvidas/'
+  fullPaths: '/' | '/assistente' | '/golpes' | '/duvidas/$slug' | '/duvidas/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/golpes' | '/duvidas/$slug' | '/duvidas'
-  id: '__root__' | '/' | '/golpes' | '/duvidas/$slug' | '/duvidas/'
+  to: '/' | '/assistente' | '/golpes' | '/duvidas/$slug' | '/duvidas'
+  id:
+    | '__root__'
+    | '/'
+    | '/assistente'
+    | '/golpes'
+    | '/duvidas/$slug'
+    | '/duvidas/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AssistenteRoute: typeof AssistenteRoute
   GolpesRoute: typeof GolpesRoute
   DuvidasSlugRoute: typeof DuvidasSlugRoute
   DuvidasIndexRoute: typeof DuvidasIndexRoute
@@ -76,6 +92,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/assistente': {
+      id: '/assistente'
+      path: '/assistente'
+      fullPath: '/assistente'
+      preLoaderRoute: typeof AssistenteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/golpes': {
@@ -104,6 +127,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AssistenteRoute: AssistenteRoute,
   GolpesRoute: GolpesRoute,
   DuvidasSlugRoute: DuvidasSlugRoute,
   DuvidasIndexRoute: DuvidasIndexRoute,

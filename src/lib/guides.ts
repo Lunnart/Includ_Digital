@@ -90,7 +90,8 @@ export const GUIDES: Guide[] = [
     terms: [
       {
         term: "Viva-voz",
-        meaning: "Faz o som da ligação sair mais alto, para você falar com o celular longe do rosto.",
+        meaning:
+          "Faz o som da ligação sair mais alto, para você falar com o celular longe do rosto.",
       },
     ],
     tip: "Se não reconhecer o número, você não precisa atender. Quem precisa mesmo falar com você costuma deixar recado ou ligar de novo.",
@@ -181,9 +182,7 @@ export const GUIDES: Guide[] = [
         detail: "Confira também se o modo silencioso não está ligado.",
       },
     ],
-    terms: [
-      { term: "Toque", meaning: "É o som que o celular faz quando alguém liga para você." },
-    ],
+    terms: [{ term: "Toque", meaning: "É o som que o celular faz quando alguém liga para você." }],
     tip: MODEL_NOTE,
   },
   {
@@ -296,7 +295,8 @@ export const GUIDES: Guide[] = [
         meaning: "É abrir o celular com a digital ou com o rosto, em vez de digitar a senha.",
       },
     ],
-    warning: "Essa senha é só sua. Não passe para ninguém, nem para quem diz ser de alguma empresa.",
+    warning:
+      "Essa senha é só sua. Não passe para ninguém, nem para quem diz ser de alguma empresa.",
     tip: MODEL_NOTE,
   },
   {
@@ -353,7 +353,8 @@ export const GUIDES: Guide[] = [
       },
       {
         text: "Toque no nome da rede da sua casa.",
-        detail: "O nome e a senha costumam estar numa etiqueta embaixo ou atrás do aparelho de internet.",
+        detail:
+          "O nome e a senha costumam estar numa etiqueta embaixo ou atrás do aparelho de internet.",
       },
       {
         text: "Digite a senha do Wi-Fi e toque em Conectar.",
@@ -367,8 +368,7 @@ export const GUIDES: Guide[] = [
         meaning: "É o nome de cada Wi-Fi disponível por perto.",
       },
     ],
-    warning:
-      "A senha do Wi-Fi é digitada só no seu celular. Este site nunca vai pedir essa senha.",
+    warning: "A senha do Wi-Fi é digitada só no seu celular. Este site nunca vai pedir essa senha.",
   },
   {
     slug: "wifi-ou-dados-moveis",
@@ -444,8 +444,7 @@ export const GUIDES: Guide[] = [
     steps: [
       {
         text: "Leia com atenção o endereço do site, na barra do alto.",
-        detail:
-          "Golpistas usam nomes quase iguais, com uma letra trocada ou palavras a mais.",
+        detail: "Golpistas usam nomes quase iguais, com uma letra trocada ou palavras a mais.",
       },
       {
         text: "Prefira digitar você mesmo o endereço ou usar o aplicativo oficial.",

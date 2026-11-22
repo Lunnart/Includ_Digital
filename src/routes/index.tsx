@@ -40,7 +40,7 @@ export const Route = createFileRoute("/")({
 });
 
 type Topic = { icon: LucideIcon; title: string; text: string };
-type TopicLink = { to: "/duvidas"; hash: string } | { to: "/golpes" };
+type TopicLink = { to: "/duvidas"; hash: string } | { to: "/golpes" } | { to: "/assistente" };
 type HomeTopic = Topic & { link?: TopicLink };
 
 const TOPICS: HomeTopic[] = [
@@ -71,6 +71,7 @@ const TOPICS: HomeTopic[] = [
     icon: MessageCircleQuestion,
     title: "Conversar com o assistente",
     text: "Escrever sua dúvida com suas palavras e receber uma resposta passo a passo.",
+    link: { to: "/assistente" },
   },
 ];
 
@@ -96,7 +97,9 @@ function Index() {
   return (
     <div className="mx-auto max-w-5xl px-5">
       <section aria-labelledby="boas-vindas" className="py-12 sm:py-16">
-        <p className="text-lg font-bold uppercase tracking-wide text-primary">Bem-vindo e bem-vinda</p>
+        <p className="text-lg font-bold uppercase tracking-wide text-primary">
+          Bem-vindo e bem-vinda
+        </p>
         <h1 id="boas-vindas" className="mt-3 text-4xl font-bold sm:text-5xl">
           Olá! Que bom ter você aqui.
         </h1>
@@ -164,7 +167,12 @@ function Index() {
                     </span>
                   )}
                 </span>
-                {link && <ChevronRight aria-hidden="true" className="size-8 shrink-0 self-center text-primary" />}
+                {link && (
+                  <ChevronRight
+                    aria-hidden="true"
+                    className="size-8 shrink-0 self-center text-primary"
+                  />
+                )}
               </>
             );
             const base = "flex h-full gap-4 rounded-2xl border-2 bg-card p-6 text-foreground";

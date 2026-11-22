@@ -7,6 +7,7 @@ const NAV_ITEMS = [
   { to: "/", label: "Início" },
   { to: "/duvidas", label: "Dúvidas" },
   { to: "/golpes", label: "Golpes" },
+  { to: "/assistente", label: "Assistente" },
 ] as const;
 
 export function SiteHeader() {

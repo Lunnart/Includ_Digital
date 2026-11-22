@@ -84,7 +84,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { title: "Passo a Passo Digital" },
       {
         name: "description",
-        content: "Ajuda simples e paciente para usar celular, internet e aplicativos com segurança.",
+        content:
+          "Ajuda simples e paciente para usar celular, internet e aplicativos com segurança.",
       },
       { property: "og:site_name", content: "Passo a Passo Digital" },
       { property: "og:locale", content: "pt_BR" },

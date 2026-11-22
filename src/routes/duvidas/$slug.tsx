@@ -98,7 +98,10 @@ function GuidePage() {
       )}
 
       {guide.tip && (
-        <aside aria-label="Dica" className="mt-8 flex gap-4 rounded-2xl bg-accent p-6 text-accent-foreground">
+        <aside
+          aria-label="Dica"
+          className="mt-8 flex gap-4 rounded-2xl bg-accent p-6 text-accent-foreground"
+        >
           <Lightbulb aria-hidden="true" className="size-10 shrink-0" />
           <p className="text-xl">
             <strong>Dica: </strong>
@@ -142,7 +145,9 @@ function GuideNotFound() {
   return (
     <div className="mx-auto max-w-3xl px-5 py-16">
       <h1 className="text-4xl font-bold">Não encontramos esta explicação</h1>
-      <p className="mt-4 text-xl">Ela pode ter mudado de lugar. Veja a lista completa de dúvidas.</p>
+      <p className="mt-4 text-xl">
+        Ela pode ter mudado de lugar. Veja a lista completa de dúvidas.
+      </p>
       <div className="mt-8">
         <BackLink />
       </div>

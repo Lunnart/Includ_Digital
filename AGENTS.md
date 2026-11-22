@@ -33,3 +33,8 @@ use the editor.
 - The site shell (skip link, header, single `<main>`, footer) lives in `src/routes/__root.tsx` via `src/components/site-shell.tsx`; pages render only their own content. Why: one consistent, accessible layout and exactly one `<main>` per page.
 - Text size is scaled by changing the root `html` font-size from `src/lib/text-size.ts`, so all sizing must use rem-based Tailwind classes, never px. Why: the A+/A− control must enlarge every element.
 - Large tap targets use the `xl` and `touch` Button sizes instead of ad-hoc sizing. Why: consistent minimum touch areas for older users.
+- AI calls live only in `src/lib/assistant.server.ts` (Lovable AI Gateway SDK), exposed through the `askAssistant` server function in `src/lib/assistant.functions.ts`. Why: keys and prompts never reach the browser.
+- Assistant limits and sensitive-data checks live in `src/lib/assistant-rules.ts`, shared by browser and server; the server always re-checks. Why: one source of truth, and the browser check is only for faster feedback.
+- The assistant chat is single-session with no storage. Why: privacy (LGPD) until the owner decides history is needed.
+- The per-person request limit (`src/lib/rate-limit.ts`) is in memory per server instance, so it is a best-effort brake. Why: avoids storing personal data; switch to a database-backed limit if abuse appears.
+- The chat UI uses AI Elements (`src/components/ai-elements/`) with the streamdown extra plugins removed. Why: platform chat primitives, without heavy unused dependencies.
