@@ -1,4 +1,4 @@
-# Inclusão Digital para Idosos
+# Inclusão Digital Para Idosos
 
 Projeto criado do zero seguindo rigorosamente as diretrizes do documento em anexo.
 
