@@ -1,6 +1,6 @@
-# Bespoke Bright Blueprint
+# Inclusão Digital para Idosos
 
-Crie um novo projeto do zero seguindo rigorosamente as diretrizes do documento em anexo.
+Projeto criado do zero seguindo rigorosamente as diretrizes do documento em anexo.
 
 This project was built with [Lovable](https://lovable.dev).
 
