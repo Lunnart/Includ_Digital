@@ -2,6 +2,7 @@ import { Link, createFileRoute } from "@tanstack/react-router";
 import {
   ChevronRight,
   Globe,
+  Gamepad2,
   Keyboard,
   LayoutGrid,
   MessageCircleQuestion,
@@ -40,7 +41,7 @@ export const Route = createFileRoute("/")({
 });
 
 type Topic = { icon: LucideIcon; title: string; text: string };
-type TopicLink = { to: "/duvidas"; hash: string } | { to: "/golpes" } | { to: "/assistente" };
+type TopicLink = { to: "/duvidas"; hash: string } | { to: "/golpes" } | { to: "/jogo" } | { to: "/assistente" };
 type HomeTopic = Topic & { link?: TopicLink };
 
 const TOPICS: HomeTopic[] = [
@@ -66,6 +67,12 @@ const TOPICS: HomeTopic[] = [
     title: "Segurança e golpes",
     text: "Reconhecer mensagens falsas e saber o que fazer quando algo parece estranho.",
     link: { to: "/golpes" },
+  },
+  {
+    icon: Gamepad2,
+    title: "Jogo: golpe ou seguro?",
+    text: "Treine com calma, sem tempo e sem pressa, a reconhecer mensagens de golpe.",
+    link: { to: "/jogo" },
   },
   {
     icon: MessageCircleQuestion,

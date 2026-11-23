@@ -38,3 +38,4 @@ use the editor.
 - The assistant chat is single-session with no storage. Why: privacy (LGPD) until the owner decides history is needed.
 - The per-person request limit (`src/lib/rate-limit.ts`) is in memory per server instance, so it is a best-effort brake. Why: avoids storing personal data; switch to a database-backed limit if abuse appears.
 - The chat UI uses AI Elements (`src/components/ai-elements/`) with the streamdown extra plugins removed. Why: platform chat primitives, without heavy unused dependencies.
+- The learning game's rounds and scoring rules live in `src/lib/game.ts`; scores stay in page state only. Why: no timer or stored data keeps it calm and private.

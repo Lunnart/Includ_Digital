@@ -7,6 +7,7 @@ const NAV_ITEMS = [
   { to: "/", label: "Início" },
   { to: "/duvidas", label: "Dúvidas" },
   { to: "/golpes", label: "Golpes" },
+  { to: "/jogo", label: "Jogo" },
   { to: "/assistente", label: "Assistente" },
 ] as const;
 
