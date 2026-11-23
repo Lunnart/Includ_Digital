@@ -5,4 +5,4 @@
   - [x] Foco no celular: celular em destaque e mais explicações de celular (pedido do usuário)
 - [x] Etapa 3: assistente com IA (IA incluída do Lovable, sem salvar conversas)
 - [x] Jogo calmo de aprendizado (golpe ou seguro?)
-- [ ] Etapa 4: histórico de conversas (opcional, aguarda decisão)
+- [ ] Etapa 4: histórico de conversas com login e consentimento (autorizada; aguarda respostas sobre formato, login, confirmação por e-mail e prazo de guarda)
