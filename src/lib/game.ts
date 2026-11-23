@@ -36,7 +36,8 @@ export const ROUNDS: Round[] = [
     id: "numero-novo-pix",
     channel: "whatsapp",
     from: "Número desconhecido, com a foto do seu filho",
-    message: "Oi, troquei de número. Salva esse novo. Preciso de um Pix urgente de R$ 900, depois te explico.",
+    message:
+      "Oi, troquei de número. Salva esse novo. Preciso de um Pix urgente de R$ 900, depois te explico.",
     answer: "golpe",
     explanation:
       "É golpe. Número novo com pedido de dinheiro urgente é o truque mais comum. Antes de qualquer Pix, ligue para o número antigo da pessoa.",
@@ -56,7 +57,8 @@ export const ROUNDS: Round[] = [
     channel: "celular",
     from: "Configurações do celular",
     context: "Você mesmo abriu as Configurações do seu celular e viu este aviso.",
-    message: "Atualização do sistema disponível. Toque em Instalar quando estiver conectado ao Wi-Fi.",
+    message:
+      "Atualização do sistema disponível. Toque em Instalar quando estiver conectado ao Wi-Fi.",
     answer: "seguro",
     explanation:
       "É seguro. Atualizações dentro das Configurações do próprio celular são oficiais e deixam o aparelho mais protegido.",
@@ -95,7 +97,8 @@ export const ROUNDS: Round[] = [
     id: "motoboy-cartao",
     channel: "ligacao",
     from: "Diz ser do seu banco",
-    message: "Seu cartão foi clonado. Vamos mandar um motoboy buscar o cartão na sua casa para trocar.",
+    message:
+      "Seu cartão foi clonado. Vamos mandar um motoboy buscar o cartão na sua casa para trocar.",
     answer: "golpe",
     explanation:
       "É golpe. O banco nunca manda alguém buscar o cartão. Desligue e ligue para o banco por outro telefone, se puder.",

@@ -59,6 +59,42 @@ export const chatInputSchema = z
   });
 
 export type ChatInput = z.infer<typeof chatInputSchema>;
+
+/** Rules for the saved conversation (signed in with consent). */
+export const HISTORY_RULES = {
+  /** Version of the consent text the person accepted. Change it when the text changes. */
+  termsVersion: "2026-11-23",
+  /** Previous saved messages sent to the AI as context with each new question. */
+  contextMessages: 14,
+  /** Most recent saved messages shown on the page. */
+  shownMessages: 300,
+  /** Longest text stored per message. */
+  maxStoredChars: 8000,
+} as const;
+
+export const savedMessageInputSchema = z.object({
+  message: z.string().trim().min(1).max(ASSISTANT_LIMITS.maxMessageChars),
+});
+
+/**
+ * Builds what the AI sees for a saved conversation: only the most recent saved
+ * messages (starting with a question), long answers shortened, then the new question.
+ */
+export function buildSavedContext(
+  previous: { role: "user" | "assistant"; content: string }[],
+  message: string,
+): { role: "user" | "assistant"; content: string }[] {
+  const recent = previous.slice(-HISTORY_RULES.contextMessages);
+  while (recent[0]?.role === "assistant") recent.shift();
+  return [
+    ...recent.map((m) =>
+      m.role === "assistant"
+        ? { role: m.role, content: m.content.slice(0, ASSISTANT_LIMITS.maxAssistantContextChars) }
+        : m,
+    ),
+    { role: "user", content: message },
+  ];
+}
 export type ChatMessage = z.infer<typeof chatMessageSchema>;
 
 export type SensitiveKind = "cartao" | "cpf" | "senha" | "codigo" | "cvv";

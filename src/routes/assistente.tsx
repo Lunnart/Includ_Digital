@@ -1,7 +1,15 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { HeartHandshake, RotateCcw, Send, ShieldAlert, AlertCircle } from "lucide-react";
-import { useRef, useState } from "react";
+import {
+  AlertCircle,
+  CheckCircle2,
+  HeartHandshake,
+  RotateCcw,
+  Send,
+  ShieldAlert,
+} from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 
 import {
   Conversation,
@@ -19,8 +27,21 @@ import {
   type PromptInputMessage,
 } from "@/components/ai-elements/prompt-input";
 import { Shimmer } from "@/components/ai-elements/shimmer";
+import { ConfirmAction } from "@/components/assistant/confirm-action";
+import { HistoryPanel, type HistoryMode } from "@/components/assistant/history-panel";
 import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
 import { askAssistant } from "@/lib/assistant.functions";
+import { useAuth } from "@/lib/auth";
+import {
+  askSavedAssistant,
+  clearSavedConversation,
+  deleteMyAccount,
+  getSavedConversation,
+  giveHistoryConsent,
+  stopSavingHistory,
+  type SavedMessage,
+} from "@/lib/history.functions";
 import { ASSISTANT_LIMITS, describeSensitive, detectSensitiveData } from "@/lib/assistant-rules";
 
 const TITLE = "Converse com o assistente — Passo a Passo Digital";
@@ -42,7 +63,8 @@ export const Route = createFileRoute("/assistente")({
 });
 
 type ChatEntry = { id: string; role: "user" | "assistant"; content: string };
-type Notice = { kind: "error" | "sensitive"; text: string };
+type Notice = { kind: "error" | "sensitive" | "info"; text: string };
+type SavedConversation = { consented: boolean; messages: SavedMessage[] };
 
 const SUGGESTIONS = [
   "Como faço uma chamada de vídeo pelo WhatsApp?",
@@ -66,17 +88,129 @@ function AssistentePage() {
 
 function AssistantChat() {
   const ask = useServerFn(askAssistant);
+  const askSaved = useServerFn(askSavedAssistant);
+  const fetchSaved = useServerFn(getSavedConversation);
+  const consent = useServerFn(giveHistoryConsent);
+  const clearSaved = useServerFn(clearSavedConversation);
+  const stopSaving = useServerFn(stopSavingHistory);
+  const deleteAccount = useServerFn(deleteMyAccount);
+  const queryClient = useQueryClient();
+  const navigate = useNavigate();
+  const { user, ready } = useAuth();
   const controller = usePromptInputController();
   const [messages, setMessages] = useState<ChatEntry[]>([]);
   const [pending, setPending] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [declined, setDeclined] = useState(false);
   const [notice, setNotice] = useState<Notice | null>(null);
   const noticeRef = useRef<HTMLDivElement>(null);
+  const loadedFor = useRef<string | null>(null);
+
+  const savedKey = ["saved-conversation", user?.id ?? "nobody"] as const;
+  const saved = useQuery({
+    queryKey: savedKey,
+    queryFn: () => fetchSaved(),
+    enabled: !!user,
+    staleTime: Infinity,
+    refetchOnWindowFocus: false,
+    retry: 1,
+  });
+
+  const mode: HistoryMode = !ready
+    ? "loading"
+    : !user || saved.isError
+      ? "guest"
+      : saved.isPending
+        ? "loading"
+        : saved.data.consented
+          ? "saved"
+          : declined
+            ? "declined"
+            : "consent";
+  const saving = mode === "saved";
+
+  // Show the saved conversation once per signed-in person; clear the page when they leave.
+  useEffect(() => {
+    if (!user) {
+      if (loadedFor.current) {
+        loadedFor.current = null;
+        setMessages([]);
+      }
+      return;
+    }
+    if (!saved.data?.consented || loadedFor.current === user.id) return;
+    loadedFor.current = user.id;
+    setMessages(saved.data.messages);
+  }, [user, saved.data]);
 
   const text = controller.textInput.value;
   const userCount = messages.filter((m) => m.role === "user").length;
   const remaining = ASSISTANT_LIMITS.maxUserMessagesPerConversation - userCount;
-  const limitReached = remaining <= 0;
+  const limitReached = !saving && remaining <= 0;
   const tooLong = text.length > ASSISTANT_LIMITS.maxMessageChars;
+  const inputLocked = limitReached || mode === "loading" || mode === "consent" || busy;
+
+  function setSaved(next: SavedConversation) {
+    queryClient.setQueryData<SavedConversation>(savedKey, next);
+  }
+
+  async function runAction(action: () => Promise<void>, failure: string) {
+    setBusy(true);
+    setNotice(null);
+    try {
+      await action();
+    } catch {
+      showNotice({ kind: "error", text: failure });
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  function giveConsent() {
+    void runAction(async () => {
+      await consent();
+      loadedFor.current = null;
+      setSaved({ consented: true, messages: [] });
+    }, "Não foi possível registrar sua escolha. Tente de novo.");
+  }
+
+  function clearConversation() {
+    void runAction(async () => {
+      await clearSaved();
+      setMessages([]);
+      setSaved({ consented: true, messages: [] });
+      controller.textInput.clear();
+      showNotice({ kind: "info", text: "A conversa guardada foi apagada." });
+    }, "Não foi possível apagar a conversa. Tente de novo.");
+  }
+
+  function stopSavingAll() {
+    void runAction(async () => {
+      await stopSaving();
+      setMessages([]);
+      setDeclined(true);
+      setSaved({ consented: false, messages: [] });
+      showNotice({
+        kind: "info",
+        text: "Tudo foi apagado. A partir de agora, suas conversas não são guardadas.",
+      });
+    }, "Não foi possível apagar tudo. Tente de novo.");
+  }
+
+  function removeAccount() {
+    void runAction(async () => {
+      await deleteAccount();
+      await queryClient.cancelQueries();
+      queryClient.clear();
+      await supabase.auth.signOut({ scope: "local" });
+      setMessages([]);
+      await navigate({ to: "/assistente", replace: true });
+      showNotice({
+        kind: "info",
+        text: "Sua conta e sua conversa guardada foram apagadas. Você pode continuar usando o site sem conta.",
+      });
+    }, "Não foi possível apagar a conta. Tente de novo.");
+  }
 
   function showNotice(next: Notice) {
     setNotice(next);
@@ -86,7 +220,7 @@ function AssistantChat() {
   /** Validates in the browser first; throwing keeps the typed text in the box. */
   function validate(raw: string): string {
     const value = raw.trim();
-    if (!value || pending) throw new BlockedSubmit();
+    if (!value || pending || inputLocked) throw new BlockedSubmit();
     if (limitReached) {
       showNotice({
         kind: "error",
@@ -123,22 +257,33 @@ function AssistantChat() {
     };
 
     try {
-      const result = await ask({
-        data: {
-          messages: history.map((m) => ({
-            role: m.role,
-            content:
-              m.role === "assistant"
-                ? m.content.slice(0, ASSISTANT_LIMITS.maxAssistantContextChars)
-                : m.content,
-          })),
-        },
-      });
+      const result = saving
+        ? await askSaved({ data: { message: value } })
+        : await ask({
+            data: {
+              messages: history.map((m) => ({
+                role: m.role,
+                content:
+                  m.role === "assistant"
+                    ? m.content.slice(0, ASSISTANT_LIMITS.maxAssistantContextChars)
+                    : m.content,
+              })),
+            },
+          });
       if (result.ok) {
         const content = result.truncated
           ? `${result.text}\n\n_A resposta ficou longa e foi cortada. Se quiser, peça para continuar._`
           : result.text;
         setMessages((current) => [...current, { id: newId(), role: "assistant", content }]);
+        if ("saved" in result && !result.saved) {
+          showNotice({
+            kind: "error",
+            text: "A resposta chegou, mas não foi possível guardar esta parte da conversa.",
+          });
+        }
+      } else if (result.code === "no_consent") {
+        restore({ kind: "error", text: result.message });
+        void saved.refetch();
       } else {
         restore({
           kind: result.code === "sensitive" ? "sensitive" : "error",
@@ -193,30 +338,51 @@ function AssistantChat() {
             </p>
           </div>
         </div>
-        {messages.length > 0 && (
-          <Button type="button" variant="outline" size="xl" onClick={restart} disabled={pending}>
-            <RotateCcw aria-hidden="true" />
-            Começar nova conversa
-          </Button>
-        )}
+        {messages.length > 0 &&
+          (saving ? (
+            <ConfirmAction
+              trigger={
+                <>
+                  <RotateCcw aria-hidden="true" />
+                  Apagar conversa e começar de novo
+                </>
+              }
+              title="Apagar a conversa guardada?"
+              description="A conversa guardada será apagada para sempre. As próximas perguntas continuam sendo guardadas."
+              confirmLabel="Sim, apagar a conversa"
+              onConfirm={clearConversation}
+              disabled={pending || busy}
+            />
+          ) : (
+            <Button type="button" variant="outline" size="xl" onClick={restart} disabled={pending}>
+              <RotateCcw aria-hidden="true" />
+              Começar nova conversa
+            </Button>
+          ))}
       </div>
 
-      <aside
-        aria-label="Antes de começar"
-        className="mt-6 flex gap-4 rounded-2xl border-2 border-safety-border bg-safety p-5 text-safety-foreground"
-      >
-        <ShieldAlert aria-hidden="true" className="size-9 shrink-0" />
-        <div className="space-y-1 text-lg">
-          <p>
-            <strong>Não escreva</strong> senhas, códigos recebidos por mensagem, número do cartão,
-            CPF ou dados do banco.
+      <HistoryPanel
+        mode={mode}
+        busy={busy || pending}
+        onConsent={giveConsent}
+        onDecline={() => setDeclined(true)}
+        onReconsider={() => setDeclined(false)}
+        onStopSaving={stopSavingAll}
+        onDeleteAccount={removeAccount}
+      />
+
+      {saved.isError && user && (
+        <div className="mt-5 flex flex-wrap items-center gap-3 rounded-2xl border-2 border-destructive bg-card p-5 text-xl">
+          <AlertCircle aria-hidden="true" className="size-8 shrink-0 text-destructive" />
+          <p className="flex-1">
+            Não foi possível abrir sua conversa guardada. Por enquanto, esta conversa não será
+            guardada.
           </p>
-          <p>
-            A conversa não fica salva: ao fechar ou recarregar a página, ela some. As respostas são
-            geradas por inteligência artificial e podem ter erros.
-          </p>
+          <Button type="button" variant="outline" size="touch" onClick={() => void saved.refetch()}>
+            Tentar de novo
+          </Button>
         </div>
-      </aside>
+      )}
 
       <section
         aria-label="Conversa"
@@ -243,7 +409,7 @@ function AssistantChat() {
                         size="xl"
                         className="h-full w-full justify-start text-left text-lg"
                         onClick={() => pickSuggestion(suggestion)}
-                        disabled={pending}
+                        disabled={pending || inputLocked}
                       >
                         {suggestion}
                       </Button>
@@ -292,15 +458,19 @@ function AssistantChat() {
         <div
           ref={noticeRef}
           tabIndex={-1}
-          role="alert"
+          role={notice.kind === "info" ? "status" : "alert"}
           className={
             notice.kind === "sensitive"
               ? "mt-5 flex gap-3 rounded-2xl border-2 border-safety-border bg-safety p-5 text-xl text-safety-foreground"
-              : "mt-5 flex gap-3 rounded-2xl border-2 border-destructive bg-card p-5 text-xl text-foreground"
+              : notice.kind === "info"
+                ? "mt-5 flex gap-3 rounded-2xl border-2 border-primary bg-card p-5 text-xl text-foreground"
+                : "mt-5 flex gap-3 rounded-2xl border-2 border-destructive bg-card p-5 text-xl text-foreground"
           }
         >
           {notice.kind === "sensitive" ? (
             <ShieldAlert aria-hidden="true" className="size-8 shrink-0" />
+          ) : notice.kind === "info" ? (
+            <CheckCircle2 aria-hidden="true" className="size-8 shrink-0 text-primary" />
           ) : (
             <AlertCircle aria-hidden="true" className="size-8 shrink-0 text-destructive" />
           )}
@@ -321,7 +491,7 @@ function AssistantChat() {
             placeholder="Escreva aqui. Exemplo: como mando uma foto pelo WhatsApp?"
             className="min-h-28 px-4 text-xl placeholder:text-muted-foreground md:text-xl"
             aria-describedby="contador-letras dica-enviar"
-            disabled={limitReached}
+            disabled={inputLocked}
           />
           <PromptInputFooter className="flex-wrap justify-between gap-3 px-4 pb-3">
             <p
@@ -334,7 +504,7 @@ function AssistantChat() {
             </p>
             <PromptInputSubmit
               status={pending ? "submitted" : "ready"}
-              disabled={pending || limitReached || !text.trim()}
+              disabled={pending || inputLocked || !text.trim()}
               className="h-12 w-auto gap-2 rounded-xl px-5 text-lg font-bold has-[>svg]:px-5 [&_svg]:size-6"
               aria-label="Enviar pergunta"
             >
@@ -352,7 +522,9 @@ function AssistantChat() {
         <p id="dica-enviar" className="mt-3 text-lg text-muted-foreground">
           {limitReached
             ? "Esta conversa chegou ao limite. Toque em Começar nova conversa para continuar."
-            : `Você ainda pode enviar ${remaining} ${remaining === 1 ? "mensagem" : "mensagens"} nesta conversa. No computador, a tecla Enter envia e Shift + Enter pula linha.`}
+            : saving
+              ? "Cada pergunta e resposta fica guardada na sua conta. No computador, a tecla Enter envia e Shift + Enter pula linha."
+              : `Você ainda pode enviar ${remaining} ${remaining === 1 ? "mensagem" : "mensagens"} nesta conversa. No computador, a tecla Enter envia e Shift + Enter pula linha.`}
         </p>
       </div>
     </div>

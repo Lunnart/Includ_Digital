@@ -1,7 +1,9 @@
 import { Link } from "@tanstack/react-router";
-import { HeartHandshake } from "lucide-react";
+import { HeartHandshake, LogIn, LogOut } from "lucide-react";
 
 import { TextSizeControl } from "@/components/text-size-control";
+import { Button } from "@/components/ui/button";
+import { useAuth, useSignOut } from "@/lib/auth";
 
 const NAV_ITEMS = [
   { to: "/", label: "Início" },
@@ -29,7 +31,10 @@ export function SiteHeader() {
             Passo a Passo Digital
           </span>
         </Link>
-        <TextSizeControl />
+        <div className="flex flex-wrap items-center gap-3">
+          <TextSizeControl />
+          <AccountControl />
+        </div>
       </div>
       <nav aria-label="Menu principal" className="border-t-2 border-border">
         <ul className="mx-auto flex max-w-5xl flex-wrap gap-1 px-3 py-3 sm:gap-2 sm:px-5">
@@ -50,12 +55,34 @@ export function SiteHeader() {
   );
 }
 
+function AccountControl() {
+  const { user, ready } = useAuth();
+  const signOut = useSignOut();
+  if (!ready) return null;
+  if (user) {
+    return (
+      <Button type="button" variant="outline" size="touch" onClick={() => void signOut()}>
+        <LogOut aria-hidden="true" />
+        Sair da conta
+      </Button>
+    );
+  }
+  return (
+    <Button asChild variant="outline" size="touch">
+      <Link to="/entrar">
+        <LogIn aria-hidden="true" />
+        Entrar
+      </Link>
+    </Button>
+  );
+}
+
 export function SiteFooter() {
   return (
     <footer className="mt-16 border-t-2 border-border bg-card">
       <div className="mx-auto max-w-5xl space-y-2 px-5 py-8 text-lg text-muted-foreground">
         <p>Feito com cuidado para quem está começando no mundo digital.</p>
-        <p>Este site não pede seus dados pessoais, senhas ou dados do banco.</p>
+        <p>Este site nunca pede senhas, códigos ou dados do banco.</p>
       </div>
     </footer>
   );

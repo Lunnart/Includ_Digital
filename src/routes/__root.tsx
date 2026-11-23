@@ -13,6 +13,7 @@ import { useEffect, type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { SiteFooter, SiteHeader } from "@/components/site-shell";
+import { AuthProvider } from "@/lib/auth";
 
 function NotFoundComponent() {
   return (
@@ -132,20 +133,22 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <div className="flex min-h-screen flex-col">
-        <a
-          href="#conteudo"
-          className="sr-only z-50 rounded-xl bg-primary text-lg font-bold text-primary-foreground focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:px-6 focus:py-4"
-        >
-          Pular para o conteúdo
-        </a>
-        <SiteHeader />
-        <main id="conteudo" tabIndex={-1} className="flex-1 focus:outline-none">
-          {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-          <Outlet />
-        </main>
-        <SiteFooter />
-      </div>
+      <AuthProvider>
+        <div className="flex min-h-screen flex-col">
+          <a
+            href="#conteudo"
+            className="sr-only z-50 rounded-xl bg-primary text-lg font-bold text-primary-foreground focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:px-6 focus:py-4"
+          >
+            Pular para o conteúdo
+          </a>
+          <SiteHeader />
+          <main id="conteudo" tabIndex={-1} className="flex-1 focus:outline-none">
+            {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+            <Outlet />
+          </main>
+          <SiteFooter />
+        </div>
+      </AuthProvider>
     </QueryClientProvider>
   );
 }
