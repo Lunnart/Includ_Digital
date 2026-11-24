@@ -41,7 +41,8 @@ export const Route = createFileRoute("/")({
 });
 
 type Topic = { icon: LucideIcon; title: string; text: string };
-type TopicLink = { to: "/duvidas"; hash: string } | { to: "/golpes" } | { to: "/jogo" } | { to: "/assistente" };
+type TopicLink =
+  { to: "/duvidas"; hash: string } | { to: "/golpes" } | { to: "/jogo" } | { to: "/assistente" };
 type HomeTopic = Topic & { link?: TopicLink };
 
 const TOPICS: HomeTopic[] = [

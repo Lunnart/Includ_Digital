@@ -520,11 +520,15 @@ function AssistantChat() {
           </PromptInputFooter>
         </PromptInput>
         <p id="dica-enviar" className="mt-3 text-lg text-muted-foreground">
-          {limitReached
-            ? "Esta conversa chegou ao limite. Toque em Começar nova conversa para continuar."
-            : saving
-              ? "Cada pergunta e resposta fica guardada na sua conta. No computador, a tecla Enter envia e Shift + Enter pula linha."
-              : `Você ainda pode enviar ${remaining} ${remaining === 1 ? "mensagem" : "mensagens"} nesta conversa. No computador, a tecla Enter envia e Shift + Enter pula linha.`}
+          {mode === "consent"
+            ? "Primeiro escolha, logo acima, se quer guardar suas conversas."
+            : mode === "loading"
+              ? "Aguarde um instante, estamos abrindo o assistente."
+              : limitReached
+                ? "Esta conversa chegou ao limite. Toque em Começar nova conversa para continuar."
+                : saving
+                  ? "Cada pergunta e resposta fica guardada na sua conta. No computador, a tecla Enter envia e Shift + Enter pula linha."
+                  : `Você ainda pode enviar ${remaining} ${remaining === 1 ? "mensagem" : "mensagens"} nesta conversa. No computador, a tecla Enter envia e Shift + Enter pula linha.`}
         </p>
       </div>
     </div>

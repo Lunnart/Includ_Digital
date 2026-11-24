@@ -35,7 +35,10 @@ use the editor.
 - Large tap targets use the `xl` and `touch` Button sizes instead of ad-hoc sizing. Why: consistent minimum touch areas for older users.
 - AI calls live only in `src/lib/assistant.server.ts` (Lovable AI Gateway SDK), exposed through the `askAssistant` server function in `src/lib/assistant.functions.ts`. Why: keys and prompts never reach the browser.
 - Assistant limits and sensitive-data checks live in `src/lib/assistant-rules.ts`, shared by browser and server; the server always re-checks. Why: one source of truth, and the browser check is only for faster feedback.
-- The assistant chat is single-session with no storage. Why: privacy (LGPD) until the owner decides history is needed.
+- Saving the assistant conversation needs sign-in plus a row in `history_consents`; guests and people who decline get the unsaved in-page chat. Why: LGPD consent before storing anything.
+- Saved-conversation reads/writes go through `src/lib/history.functions.ts` with `requireSupabaseAuth`, and RLS limits every row to its owner; inserts also require consent in RLS. Why: isolation is enforced by the database, not only by the page.
+- Session state comes from the single `AuthProvider` in `src/lib/auth.tsx`, mounted in the root route; components read it with `useAuth()`. Why: one auth listener, no duplicate subscriptions.
+- App tables store `user_id` without a foreign key to `auth.users`, so account deletion must go through `deleteMyAccount`, which erases the person's rows before the account. Why: deleting a user elsewhere would leave orphan rows.
 - The per-person request limit (`src/lib/rate-limit.ts`) is in memory per server instance, so it is a best-effort brake. Why: avoids storing personal data; switch to a database-backed limit if abuse appears.
 - The chat UI uses AI Elements (`src/components/ai-elements/`) with the streamdown extra plugins removed. Why: platform chat primitives, without heavy unused dependencies.
 - The learning game's rounds and scoring rules live in `src/lib/game.ts`; scores stay in page state only. Why: no timer or stored data keeps it calm and private.
